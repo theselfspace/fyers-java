@@ -78,5 +78,6 @@ For sell, the format is `<EXCHANGE>:<INSTRUMENT>-<PRODUCT TYPE>`
 **
 
 For any queries, please write me at <theself.space@gmail.com> or ping at [Theself_Space](https://twitter.com/Theself_Space)
+
 Some more work from me - https://medium.com/@theself.space
 
