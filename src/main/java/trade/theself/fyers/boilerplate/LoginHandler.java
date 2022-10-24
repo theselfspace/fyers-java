@@ -35,7 +35,7 @@ public class LoginHandler {
 	
 	private int THREAD_SLEEP_DURATION = 2000;
 	private String authCode = StringUtils.EMPTY;
-	private String loginUrl = "https://api-dashboard.fyers.in/v2/dashboard";
+	private String loginUrl = "https://login.fyers.in/?cb=https://myapi.fyers.in/dashboard";
 	private String clientCode = StringUtils.EMPTY;
 	private String redirectUrl = StringUtils.EMPTY;
 	private String state = "sample_state";
@@ -43,20 +43,23 @@ public class LoginHandler {
 	/**
 	 * Login to the portal through browser path.. This could break if Fyers decide to update their UI
 	 * @param clientId - Client ID of the user
-	 * @param pwd - web password to login to the portal
-	 * @param otp - OTP to be used for 2fa
+	 * @param otp - 4 digits wide OTP to be used for login
+	 * @param totp - 6 digits wide TOTP to be used for 2fa
 	 * @return - authorization code on successful login
 	 * @throws LoginException - {@link LoginException} in case of failure
 	 */
-	public String login(String clientId, String pwd, String otp) throws LoginException {
+	public String login(String clientId, String otp, String totp) throws LoginException {
 		
 		this.authCode = StringUtils.EMPTY;
 		
-		if(StringUtils.isEmpty(clientId) || StringUtils.isEmpty(pwd)) {
-			throw new LoginException("Client ID or client password is null!");
+		if(StringUtils.isEmpty(clientId)) {
+			throw new LoginException("Client ID is null!");
 		}
 		if(StringUtils.isEmpty(otp) || otp.length()!=4 || !NumberUtils.isCreatable(otp)) {
 			throw new LoginException("Either OTP is missing or it's format is wrong");
+		}
+		if(StringUtils.isEmpty(totp) || totp.length()!=6 || !NumberUtils.isCreatable(totp)) {
+			throw new LoginException("Either TOTP is missing or it's format is wrong");
 		}
 		if(StringUtils.isEmpty(clientCode) || StringUtils.isEmpty(redirectUrl)) {
 			throw new LoginException("Client code [which is the app id in the portal] and redirect url are mandatory. Please check your app configuration details.");
@@ -70,7 +73,8 @@ public class LoginHandler {
 				"--ignore-certificate-errors",
 				"--disable-extensions",
 				"--no-sandbox",
-				"--disable-dev-shm-usage");
+				"--disable-dev-shm-usage",
+				"--incognito");
 		
 		WebDriver driver = new ChromeDriver(options);
 		WebDriverWait wait = new WebDriverWait(driver, 30);
@@ -90,25 +94,32 @@ public class LoginHandler {
 			throw new LoginException(e.getMessage());
 		}
 		
-		By password = By.id("fy_client_pwd");
-		By loginSubmit = By.id("loginSubmit");
-		wait.until(presenceOfElementLocated(password));
-		wait.until(presenceOfElementLocated(loginSubmit));
-		driver.findElement(password).sendKeys(pwd);
-		driver.findElement(loginSubmit).click();
+		
+		By first = By.id("first");
+		By second = By.id("second");
+		By third = By.id("third");
+		By fourth = By.id("fourth");
+		By fifth = By.id("fifth");
+		By sixth = By.id("sixth");
+		By confirmOtpSubmit = By.id("confirmOtpSubmit");
+		wait.until(presenceOfElementLocated(first));
+		
+		driver.findElement(first).sendKeys(String.valueOf(totp.charAt(0)));
+		driver.findElement(second).sendKeys(String.valueOf(totp.charAt(1)));
+		driver.findElement(third).sendKeys(String.valueOf(totp.charAt(2)));
+		driver.findElement(fourth).sendKeys(String.valueOf(totp.charAt(3)));
+		driver.findElement(fifth).sendKeys(String.valueOf(totp.charAt(4)));
+		driver.findElement(sixth).sendKeys(String.valueOf(totp.charAt(5)));
+		
+		driver.findElement(confirmOtpSubmit).click();
 		
 		try {
 			Thread.sleep(THREAD_SLEEP_DURATION);
 		} catch (InterruptedException e) {
 			throw new LoginException(e.getMessage());
 		}
-
 		
-		By first = By.id("first");
-		By verifyPinSubmit = By.id("verifyPinSubmit");
 		wait.until(presenceOfElementLocated(first));
-		
-		
 		By firstXpath = By.xpath("//form[@id='verifyPinForm']/div[2]/input[1]");
 		By secondXpath = By.xpath("//form[@id='verifyPinForm']/div[2]/input[2]");
 		By thirdXpath = By.xpath("//form[@id='verifyPinForm']/div[2]/input[3]");
@@ -118,9 +129,7 @@ public class LoginHandler {
 		driver.findElement(secondXpath).sendKeys(Character.toString(otp.charAt(1)));
 		driver.findElement(thirdXpath).sendKeys(Character.toString(otp.charAt(2)));
 		driver.findElement(fourthXpath).sendKeys(Character.toString(otp.charAt(3)));
-		
-		driver.findElement(verifyPinSubmit).click();
-		
+
 		try {
 			Thread.sleep(THREAD_SLEEP_DURATION);
 		} catch (InterruptedException e) {
