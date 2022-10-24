@@ -14,7 +14,7 @@
         <dependency>
 			<groupId>space.theself</groupId>
 			<artifactId>fyers-java</artifactId>
-			<version>1.0.0</version>
+			<version>1.0.1</version>
         </dependency>
 
 #### 3. Login to Fyers 
