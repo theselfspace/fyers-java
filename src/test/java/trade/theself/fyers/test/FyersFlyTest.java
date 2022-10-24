@@ -15,19 +15,28 @@ import trade.theself.fyers.model.response.Holding;
 import trade.theself.fyers.model.response.MarketStatus;
 import trade.theself.fyers.model.response.Profile;
 import trade.theself.fyers.util.FyerParam;
+import trade.theself.fyers.util.TotpProvider;
 
 public class FyersFlyTest {
 
 	private FyersFly fly;
 	private Gson gson = new Gson();
 	private final boolean DISABLE_TEST = true; 
+	private TotpProvider totp = null;
 	
 	@Before
 	public void setUp() throws LoginException {
+		totp = new TotpProvider("<YOUR TOTP KEY>");		
 		if(DISABLE_TEST) {
 			System.err.println("Tests are disabled");
 			return;
-		}	
+		}
+		try {
+			System.out.println(totp.getTotp());
+		} catch (Exception e) {
+			System.err.println("Please set your TOTP key");
+			return;
+		}
 		this.getToken();
 	}
 
@@ -36,9 +45,8 @@ public class FyersFlyTest {
 		if(DISABLE_TEST) {
 			System.err.println("Tests are disabled");
 			return;
-		}	
-
-	 	System.out.println("GET HOLDING");
+		}			
+		System.out.println("GET HOLDING");
 		Holding[] holdings = fly.getHolding();
 		System.out.println(gson.toJson(holdings));
 		System.out.println();
@@ -83,7 +91,7 @@ public class FyersFlyTest {
 		LoginHandler loginHandler = new LoginHandler();
 		loginHandler.setClientCode("<YOUR APP ID>");
 		loginHandler.setRedirectUrl("<YOUR APP SPECIFIC REDIRECT URL>");
-		String authCode = loginHandler.login("<LOGIN USERNAME>", "<LOGIN PASSWORD>", "<4 DIGIT MFA>");
+		String authCode = loginHandler.login("<LOGIN USERNAME>", "<4 DIGIT MFA>", totp.getTotp());
 		System.out.println("Auth code:"+authCode);
 		fly = new FyersFly("<YOUR APP ID>", "<YOUR APP SECRET>");
 		String token = fly.generateAccessToken(authCode);

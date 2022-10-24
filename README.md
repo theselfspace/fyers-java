@@ -24,9 +24,15 @@ Login is done by `LoginHandler` class that needs app id and redirect URL, you ca
 		loginHandler.setClientCode("<YOUR APP ID>");
 		loginHandler.setRedirectUrl("<YOUR APP SPECIFIC REDIRECT URL>");
 		
-Once you provide that, you can call the `login` method that requires parameters similar to what you would need to login Fyers via web:
+~~Once you provide that, you can call the `login` method that requires parameters similar to what you would need to login Fyers via web:~~
+
+Fyers have strengthened the login process which is a good thing. MFA is to make the access a bit more secure.
+We have updated the approach where we now expect user to enable [time-based OTP](https://support.fyers.in/portal/en/kb/articles/what-is-time-based-one-time-password-totp-and-how-to-set-it-up-in-fyers) in the account.
+Once that is done, we can use the 32 char TOTP secret to generate 6 digit TOTP.
 		
-		String authCode = loginHandler.login("<LOGIN USERNAME>", "<LOGIN PASSWORD>", "<4 DIGIT MFA>");
+		
+		totp = new TotpProvider("<YOUR TOTP KEY>");
+		String authCode = loginHandler.login("<LOGIN USERNAME>", "<4 DIGIT MFA>", totp.getTotp());
 
 Once it generates the auth code successfully, you can now trigger the API calls.
 
