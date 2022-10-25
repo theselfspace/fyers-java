@@ -13,7 +13,7 @@ public class QuoteDict {
     private float l;
     private float c;
     private int v;
-    private float tf;
+    private String tf;
 	public int getT() {
 		return t;
 	}
@@ -50,10 +50,10 @@ public class QuoteDict {
 	public void setV(int v) {
 		this.v = v;
 	}
-	public float getTf() {
+	public String getTf() {
 		return tf;
 	}
-	public void setTf(float tf) {
+	public void setTf(String tf) {
 		this.tf = tf;
 	}
     
