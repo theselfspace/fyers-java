@@ -160,6 +160,7 @@ public class LoginHandler {
 				for (NameValuePair param : params) {
 					if(param.getName().equals("auth_code"))
 						authCode = param.getValue();
+						break; 
 				}
 			} catch (URISyntaxException e) {
 				throw new LoginException(e.getMessage());
