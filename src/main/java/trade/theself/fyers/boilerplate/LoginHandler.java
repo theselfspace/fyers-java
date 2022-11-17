@@ -6,6 +6,8 @@ import static org.openqa.selenium.support.ui.ExpectedConditions.presenceOfElemen
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -39,7 +41,7 @@ public class LoginHandler {
 	private String clientCode = StringUtils.EMPTY;
 	private String redirectUrl = StringUtils.EMPTY;
 	private String state = "sample_state";
-	
+	private boolean enableHeadless = true;
 	/**
 	 * Login to the portal through browser path.. This could break if Fyers decide to update their UI
 	 * @param clientId - Client ID of the user
@@ -67,15 +69,17 @@ public class LoginHandler {
 		
 		WebDriverManager.chromedriver().setup();
 		ChromeOptions options = new ChromeOptions();
-		options.addArguments(
-				"--headless",
-				"--disable-gpu", 
-				"--ignore-certificate-errors",
-				"--disable-extensions",
-				"--no-sandbox",
-				"--disable-dev-shm-usage",
-				"--incognito");
-		
+		List<String> argList = new ArrayList<>();
+		argList.add("--disable-gpu");
+		argList.add("--ignore-certificate-errors");
+		argList.add("--disable-extensions");
+		argList.add("--no-sandbox");
+		argList.add("--disable-dev-shm-usage");
+		argList.add("--incognito");
+		if(enableHeadless)
+			argList.add("--headless");
+		options.addArguments(argList);
+
 		WebDriver driver = new ChromeDriver(options);
 		WebDriverWait wait = new WebDriverWait(driver, 30);
 		driver.get(loginUrl);
@@ -158,8 +162,10 @@ public class LoginHandler {
 			try {
 				List<NameValuePair> params = URLEncodedUtils.parse(new URI(currentUrl), Charset.forName("UTF-8"));
 				for (NameValuePair param : params) {
-					if(param.getName().equals("auth_code"))
+					if(param.getName().equals("auth_code")) {
 						authCode = param.getValue();
+						break;
+					}
 				}
 			} catch (URISyntaxException e) {
 				throw new LoginException(e.getMessage());
@@ -213,5 +219,11 @@ public class LoginHandler {
 	public void setState(String state) {
 		this.state = state;
 	}
+
+	/**
+	 * Method primarily to disable headless mode in case any browser related debugging is required.
+	 * @param state
+	 */
+	public void setEnableHeadless(boolean state) { this.enableHeadless = state;}
 
 }
