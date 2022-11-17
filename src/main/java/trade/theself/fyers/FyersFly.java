@@ -134,11 +134,11 @@ public class FyersFly {
 
 		try {
 			CloseableHttpResponse response = client.execute(httpPost);
-			client.close();
 			InputStream is = response.getEntity().getContent();
 			StringBuffer sb = new StringBuffer();
 			byte[] allBytes = ByteStreams.toByteArray(is);
 			is.close();
+			client.close();
 			sb.append(new String(allBytes, StandardCharsets.US_ASCII));
 			JsonElement jsonElement = jsonParser.parse(sb.toString());
 			this.accessToken = jsonElement.getAsJsonObject().get("access_token").getAsString();
